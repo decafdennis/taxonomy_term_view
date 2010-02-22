@@ -1,0 +1,39 @@
+<?php
+// Developed by Dennis Stevense, naquah.net
+
+/**
+ * Implementation of hook_install().
+ */
+function taxonomy_term_view_install() {
+  drupal_install_schema('taxonomy_term_view');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function taxonomy_term_view_schema() {
+  return array(
+    'taxonomy_term_view' => array(
+      'fields' => array(
+        'tid' => array(
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE
+        ),
+        'view_name' => array(
+          'type' => 'varchar',
+          'length' => '32',
+          'default' => '',
+          'not null' => TRUE,
+        ),
+        'display_id' => array(
+          'type' => 'varchar',
+          'length' => '64',
+          'default' => '',
+          'not null' => TRUE,
+        ),
+      ),
+      'primary key' => array('tid'),
+    ),
+  );
+}

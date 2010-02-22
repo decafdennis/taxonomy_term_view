@@ -1,0 +1,66 @@
+<?php
+// Developed by Dennis Stevense, naquah.net
+
+/**
+ * Implementation of hook_menu().
+ */
+function taxonomy_term_view_menu() {
+  $items = array();
+  
+  $items['admin/settings/taxonomy_term_view'] = array(
+    'title' => 'Taxonomy term view',
+    'description' => 'Settings for the taxonomy term view module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('taxonomy_term_view_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'taxonomy_term_view.admin.inc',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ */
+function taxonomy_term_view_menu_alter(&$items) {
+  $items['taxonomy/term/%']['page callback'] = 'taxonomy_term_view_page';
+  $items['taxonomy/term/%']['module'] = 'taxonomy_term_view';
+  $items['taxonomy/term/%']['file'] = 'taxonomy_term_view.pages.inc';
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function taxonomy_term_view_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'taxonomy_form_vocabulary') {
+    module_load_include('inc', 'taxonomy_term_view', 'taxonomy_term_view.admin');
+    taxonomy_term_view_vocabulary_form_alter($form, $form_state);
+  }
+  else if ($form_id == 'taxonomy_form_term' && !isset($form_state['confirm_delete']) && !isset($form_state['confirm_parents'])) {
+    module_load_include('inc', 'taxonomy_term_view', 'taxonomy_term_view.admin');
+    taxonomy_term_view_term_form_alter($form, $form_state);
+  }
+}
+
+/**
+ * Implementation of hook_taxonomy().
+ */
+function taxonomy_term_view_taxonomy($op, $type, $array = NULL) {
+  switch ($type) {
+    case 'vocabulary':
+      switch ($op) {
+        case 'delete':
+          variable_del('taxonomy_term_view_vocabulary_' . $array['vid']);
+          break;
+      }
+      break;
+      
+    case 'term':
+      switch ($op) {
+        case 'delete':
+          db_query("DELETE FROM {taxonomy_term_view} WHERE tid = %d", $array['tid']);
+          break;
+      }
+      break;
+  }
+}

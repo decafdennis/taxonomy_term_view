@@ -1,0 +1,8 @@
+; Developed by Dennis Stevense, naquah.net
+name = Taxonomy term view
+description = Can be used to specify the view to use for the listing of a specific taxonomy term.
+package = Views
+dependencies[] = views
+
+core = 6.x
+version = 6.x-1.x-dev
