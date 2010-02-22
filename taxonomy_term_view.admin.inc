@@ -125,12 +125,59 @@ function taxonomy_term_view_term_form_submit($form, &$form_state) {
   }
 }
 
-function taxonomy_term_view_options($include_default = TRUE, $include_all = FALSE) {
+function taxonomy_term_view_block_form_alter(&$form, $form_state) {
+  $module = $form['module']['#value'];
+  $delta = $form['delta']['#value'];
+
+  $default_values = array();
+  $result = db_query("SELECT * FROM {taxonomy_term_view_block} WHERE module = '%s' AND delta = '%s'", $module, $delta);
+  while ($record = db_fetch_array($result)) {
+    $default_values[] = $record['view_name'] . '__' . $record['display_id'];
+  }
+  
+  $form['taxonomy_term_view_block'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Term view visibility'),
+    '#description' => t('Select the term views and displays for which this block should be visible. Select either none or all items to not change the block visibility.'),
+    '#collapsible' => TRUE,
+    '#weight' => 8,
+    '#tree' => TRUE,
+  );
+  $form['taxonomy_term_view_block']['view'] = array(
+    '#type' => 'select',
+    '#title' => t('Views and displays'),
+    '#multiple' => TRUE,
+    '#options' => taxonomy_term_view_options(FALSE, FALSE, FALSE),
+    '#default_value' => $default_values,
+  );
+  
+  $form['submit']['#weight'] = 50;
+  
+  $form['#submit'][] = 'taxonomy_term_view_block_form_submit';
+}
+
+function taxonomy_term_view_block_form_submit($form, &$form_state) {
+  $module = $form_state['values']['module'];
+  $delta = $form_state['values']['delta'];
+
+  db_query("DELETE FROM {taxonomy_term_view_block} WHERE module = '%s' AND delta = '%s'", $module, $delta);
+  foreach ($form_state['values']['taxonomy_term_view_block']['view'] as $value) {
+    $pos = strpos($value, '__');
+    $view_name = substr($value, 0, $pos);
+    $display_id = substr($value, $pos + 2);
+    
+    db_query("INSERT INTO {taxonomy_term_view_block} (module, delta, view_name, display_id) VALUES ('%s', '%s', '%s', '%s')", $module, $delta, $view_name, $display_id);
+  }
+}
+
+function taxonomy_term_view_options($include_default = TRUE, $include_all = FALSE, $include_none = TRUE) {
   $options = array();
   if ($include_default) {
     $options['_default'] = '<' . t('default') . '>';
   }
-  $options['_none'] = '<' . t('none') . '>';
+  if ($include_none) {
+    $options['_none'] = '<' . t('none') . '>';
+  }
   
   $views = views_get_all_views();
   foreach ($views as $view) {

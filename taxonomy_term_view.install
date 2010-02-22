@@ -8,6 +8,45 @@ function taxonomy_term_view_install() {
   drupal_install_schema('taxonomy_term_view');
 }
 
+function taxonomy_term_view_update_6100() {
+  $ret = array();
+  
+  db_create_table($ret, 'taxonomy_term_view_block', array(
+    'fields' => array(
+      'module' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'delta' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+      'view_name' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'default' => '',
+        'not null' => TRUE,
+      ),
+      'display_id' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'default' => '',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'block' => array('module', 'delta'),
+      'display' => array('view_name', 'display_id'),
+    ),
+  ));
+  
+  return $ret;
+}
+
 /**
  * Implementation of hook_schema().
  */
@@ -34,6 +73,38 @@ function taxonomy_term_view_schema() {
         ),
       ),
       'primary key' => array('tid'),
+    ),
+    'taxonomy_term_view_block' => array(
+      'fields' => array(
+        'module' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'delta' => array(
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => '0',
+        ),
+        'view_name' => array(
+          'type' => 'varchar',
+          'length' => '32',
+          'default' => '',
+          'not null' => TRUE,
+        ),
+        'display_id' => array(
+          'type' => 'varchar',
+          'length' => '64',
+          'default' => '',
+          'not null' => TRUE,
+        ),
+      ),
+      'indexes' => array(
+        'block' => array('module', 'delta'),
+        'display' => array('view_name', 'display_id'),
+      ),
     ),
   );
 }
