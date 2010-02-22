@@ -152,10 +152,10 @@ function taxonomy_term_view_options($include_default = TRUE, $include_all = FALS
   // Intersect with the set of enabled options
   if (!$include_all) {
     $enabled_options = array_filter(variable_get('taxonomy_term_view_options', array_keys($options)));
-    $enabled_options['_none'] = '';
-    $enabled_options['_default'] = '';
+    $enabled_options[] = '_none';
+    $enabled_options[] = '_default';
 
-    $options = array_intersect_key($options, $enabled_options);
+    $options = array_intersect_key($options, array_flip($enabled_options));
   }
   
   return $options;
