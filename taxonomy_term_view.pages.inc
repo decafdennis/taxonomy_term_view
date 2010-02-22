@@ -10,28 +10,15 @@ function taxonomy_term_view_page($str_tids = '', $depth = 0, $op = 'page') {
     module_load_include('inc', 'taxonomy', 'taxonomy.pages');
     return taxonomy_term_page($str_tids, $depth, $op);
   }
-  $term = taxonomy_get_term(array_pop($terms['tids']));
+  $tid = array_pop($terms['tids']);
   
-  $result = db_query("SELECT * FROM {taxonomy_term_view} WHERE tid = %d", $term->tid);
-  if ($record = db_fetch_array($result)) {
-    $view_name = $record['view_name'];
-    $display_id = $record['display_id'];
-  }
-  else {
-    $default = variable_get('taxonomy_term_view_vocabulary_' . $term->vid, '_none');
-    if ($default == '_none') {
-      $view_name = '_none';
-    }
-    else {
-      $pos = strpos($default, '__');
-      $view_name = substr($default, 0, $pos);
-      $display_id = substr($default, $pos + 2);
-    }
-  }
-  
+  $active_view = taxonomy_term_view_view($tid);
+  $view_name = $active_view['view_name'];
+  $display_id = $active_view['display_id'];
+
   if ($view_name == '_none') {
     module_load_include('inc', 'taxonomy', 'taxonomy.pages');
-    return taxonomy_term_page($term->tid);
+    return taxonomy_term_page($tid);
   }
   else {
     $view = views_get_view($view_name);
@@ -42,6 +29,6 @@ function taxonomy_term_view_page($str_tids = '', $depth = 0, $op = 'page') {
     //   return drupal_access_denied();
     // }
     
-    return $view->execute_display(NULL, array($term->tid));
+    return $view->execute_display(NULL, array($tid));
   }
 }

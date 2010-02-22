@@ -19,6 +19,32 @@ function taxonomy_term_view_menu() {
   return $items;
 }
 
+function taxonomy_term_view_view($tid) {
+  $term = taxonomy_get_term($tid);
+  
+  $result = db_query("SELECT * FROM {taxonomy_term_view} WHERE tid = %d", $term->tid);
+  if ($record = db_fetch_array($result)) {
+    $view_name = $record['view_name'];
+    $display_id = $record['display_id'];
+  }
+  else {
+    $default = variable_get('taxonomy_term_view_vocabulary_' . $term->vid, '_none');
+    if ($default == '_none') {
+      $view_name = '_none';
+    }
+    else {
+      $pos = strpos($default, '__');
+      $view_name = substr($default, 0, $pos);
+      $display_id = substr($default, $pos + 2);
+    }
+  }
+  
+  return array(
+    'view_name' => $view_name,
+    'display_id' => $display_id,
+  );
+}
+
 /**
  * Implementation of hook_menu_alter().
  */
