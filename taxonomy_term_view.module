@@ -100,7 +100,7 @@ function taxonomy_term_view_db_rewrite_sql($query, $primary_table, $primary_fiel
         if ($view_name != '_none') {
           return array(
             'join' => "LEFT JOIN {taxonomy_term_view_block} ttvb ON $primary_table.module = ttvb.module AND $primary_table.delta = ttvb.delta",
-            'where' => "(ttvb.view_name = '" . db_escape_string($view_name) . "' AND ttvb.display_id = '" . db_escape_string($display_id) . "') OR (ttvb.view_name IS NULL AND ttvb.display_id IS NULL)",
+            'where' => sprintf("(ttvb.view_name = '%s' AND ttvb.display_id = '%s') OR (ttvb.view_name IS NULL AND ttvb.display_id IS NULL)", db_escape_string($view_name), db_escape_string($display_id)),
           );
         }
       }
