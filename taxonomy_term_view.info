@@ -6,4 +6,4 @@ dependencies[] = views
 dependencies[] = taxonomy
 
 core = 6.x
-version = 6.x-1.x-dev
+version = 6.x-2.0-beta1
