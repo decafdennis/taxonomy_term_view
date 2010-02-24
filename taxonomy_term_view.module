@@ -19,15 +19,24 @@ function taxonomy_term_view_menu() {
   return $items;
 }
 
+/**
+ * Returns the view and display to use for a particular term.
+ *
+ * @param tid The identifier of the term.
+ *
+ * @return An array with keys view_name and display_id to indicate the view and display respectively.
+ */
 function taxonomy_term_view_view($tid) {
   $term = taxonomy_get_term($tid);
   
+  // Try to find it for the term
   $result = db_query("SELECT * FROM {taxonomy_term_view} WHERE tid = %d", $term->tid);
   if ($record = db_fetch_array($result)) {
     $view_name = $record['view_name'];
     $display_id = $record['display_id'];
   }
   else {
+    // Fallback to whatever default is set for the vocabulary
     $default = variable_get('taxonomy_term_view_vocabulary_' . $term->vid, '_none');
     if ($default == '_none') {
       $view_name = '_none';
@@ -96,8 +105,9 @@ function taxonomy_term_view_db_rewrite_sql($query, $primary_table, $primary_fiel
         $view_name = $active_view['view_name'];
         $display_id = $active_view['display_id'];
         
-        // Do we have a special view?
+        // Do we have a view set?
         if ($view_name != '_none') {
+          // Join with our table to make sure only blocks are returned that are either enabled for the view and display, or that are not enabled or disabled for any particular view and display
           return array(
             'join' => "LEFT JOIN {taxonomy_term_view_block} ttvb ON $primary_table.module = ttvb.module AND $primary_table.delta = ttvb.delta",
             'where' => sprintf("(ttvb.view_name = '%s' AND ttvb.display_id = '%s') OR (ttvb.view_name IS NULL AND ttvb.display_id IS NULL)", db_escape_string($view_name), db_escape_string($display_id)),

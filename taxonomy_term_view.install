@@ -8,6 +8,9 @@ function taxonomy_term_view_install() {
   drupal_install_schema('taxonomy_term_view');
 }
 
+/**
+ * Implementation of hook_update_N().
+ */
 function taxonomy_term_view_update_6100() {
   $ret = array();
   
